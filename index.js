@@ -25,15 +25,6 @@ const invert = (imageData) => {
   return imageData;
 };
 
-
-const invertTask = () => {
-  const { ctx, cvs, imageData } = createNewCanvasFromImage();
-  const newImageData = invert(imageData);
-  ctx.putImageData(newImageData, 0, 0);
-
-  document.body.appendChild(cvs);
-};
-
 const addToPixel = (imageData, pixel, value) => {
   const { data } = imageData;
   for (let i = 0; i < data.length; i += 4) {
@@ -86,6 +77,7 @@ const task2a = () => {
   const newImageData = invert(imageData);
   ctx.putImageData(newImageData, 0, 0);
 
+  taskDiv.appendChild(img);
   taskDiv.appendChild(cvs);
   document.body.appendChild(taskDiv);
 };
@@ -138,15 +130,44 @@ const task2c = () => {
 const task2d = () => {
   const taskDiv = document.createElement('div');
   taskDiv.className = 'row';
-  taskDiv.appendChild(img);
-  taskDiv.appendChild(img2);
-
-
+  const img1 = img.cloneNode();
+  const img2Clone = img2.cloneNode();
+  taskDiv.appendChild(img1);
+  taskDiv.appendChild(img2Clone);
   const { ctx, cvs } = createNewCanvasFromImage();
 
-  ctx.globalAlpha = 0.5;
-  ctx.drawImage(img2, 0, 0, height, width);
+  img2Clone.onload = () => {
+    ctx.globalAlpha = 0.5;
+    ctx.drawImage(img2Clone, 0, 0, height, width);
+    taskDiv.appendChild(cvs);
+  };
+  document.body.appendChild(taskDiv);
+};
 
+
+const task2e = () => {
+  const taskDiv = document.createElement('div');
+  taskDiv.className = 'row';
+  const { ctx, cvs, imageData } = createNewCanvasFromImage();
+  const px = imageData.data;
+  const tmpPx = new Uint8ClampedArray(px.length);
+  tmpPx.set(px);
+
+  for (let i = 0; i < px.length; i++) {
+    if (i % 4 === 3) {continue;}
+    px[i] = ( tmpPx[i] 
+    + (tmpPx[i - 4] || tmpPx[i])
+    + (tmpPx[i + 4] || tmpPx[i]) 
+    + (tmpPx[i - 4 * imageData.width] || tmpPx[i])
+    + (tmpPx[i + 4 * imageData.width] || tmpPx[i]) 
+    + (tmpPx[i - 4 * imageData.width - 4] || tmpPx[i])
+    + (tmpPx[i + 4 * imageData.width + 4] || tmpPx[i])
+    + (tmpPx[i + 4 * imageData.width - 4] || tmpPx[i])
+    + (tmpPx[i - 4 * imageData.width + 4] || tmpPx[i])
+    ) / 9;
+  };
+
+  ctx.putImageData(imageData, 0, 0);
   taskDiv.appendChild(cvs);
   document.body.appendChild(taskDiv);
 };
@@ -156,4 +177,5 @@ img.onload = () => {
   task2b();
   task2c();
   task2d();
+  task2e();
 };
