@@ -85,6 +85,41 @@ const nullPixel = (imageData, pixel) => {
 };
 
 
+const median = (imageData, size) => {
+  const { data, width, height } = imageData;
+  const halfSize = Math.floor(size / 2);
+  const newData = createImageData(width, height);
+  for (let i = 0; i < data.length; i += 4) {
+    const x = Math.floor(i / 4) % width;
+    const y =  Math.floor(Math.floor(i / 4) / width);
+    const redEntries = [];
+    const greenEntries = [];
+    const blueEntries = [];
+
+    const startValueX = x - halfSize < 0 ? 0 : x - halfSize;
+    for (let mx = startValueX; mx < x + halfSize && mx < width; mx++) {
+      const startValueY = y - halfSize < 0 ? 0 : y - halfSize;
+      for (let my = startValueY; my < y + halfSize && my < height; my++) {
+        const startI = ((my * width) + mx) * 4;
+        redEntries.push(data[startI]);
+        greenEntries.push(data[startI + 1]);
+        blueEntries.push(data[startI + 2]);
+      }
+    }
+
+    const red = redEntries.sort()[Math.floor(redEntries.length / 2)];
+    const green = greenEntries.sort()[Math.floor(redEntries.length / 2)];
+    const blue = blueEntries.sort()[Math.floor(redEntries.length / 2)];
+
+    newData.data[i] = red;
+    newData.data[i + 1] = green;
+    newData.data[i + 2] = blue;
+    newData.data[i + 3] = 255;
+  }
+  console.log(newData.data);
+  return newData;
+};
+
 const createImageData = (w,h) => {
   const tmpCanvas = document.createElement('canvas');
   const tmpCtx = tmpCanvas.getContext('2d');
@@ -199,9 +234,9 @@ const task2b = () => {
   const { ctx: ctxB, cvs: cvsB, imageData: imageDataB } = createNewCanvasFromImage();
   
 
-  const newImageDataR = addToPixel(imageDataR, 'red', 20);
-  const newImageDataG = addToPixel(imageDataG, 'green', 20);
-  const newImageDataB = addToPixel(imageDataB, 'blue', 20);
+  const newImageDataR = addToPixel(imageDataR, 'red', 40);
+  const newImageDataG = addToPixel(imageDataG, 'green', 40);
+  const newImageDataB = addToPixel(imageDataB, 'blue', 40);
 
   ctxR.putImageData(newImageDataR, 0, 0);
   ctxG.putImageData(newImageDataG, 0, 0);
@@ -250,6 +285,18 @@ const task2d = () => {
     ctx.drawImage(img2Clone, 0, 0, height, width);
     taskDiv.appendChild(cvs);
   };
+  document.body.appendChild(taskDiv);
+};
+
+const task2Median = () => {
+  const taskDiv = document.createElement('div');
+  taskDiv.className = 'row';
+  const { ctx, cvs, imageData} = createNewCanvasFromImage();
+
+  const sizePx = 5;
+  const imageDataNew = median(imageData, sizePx);
+  ctx.putImageData(imageDataNew, 0, 0);
+  taskDiv.appendChild(cvs);
   document.body.appendChild(taskDiv);
 };
 
@@ -325,5 +372,6 @@ img.onload = () => {
   task2d();
   task2BlurGaussian();
   taskFilterSharp();
+  task2Median();
   taskFilterSobel();
 };
