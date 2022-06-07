@@ -44,6 +44,19 @@ const addToPixel = (imageData, pixel, value) => {
   return pixels;
 }
 
+const toBW  = (pixels) => {
+  const d = pixels.data;
+  for (let i=0; i<d.length; i+=4) {
+    const r = d[i];
+    const g = d[i+1];
+    const b = d[i+2];
+    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+    const whiteBlack = gray < 255 / 2 ? 0 : 255;
+    d[i] = d[i+1] = d[i+2] = whiteBlack;
+  }
+  return pixels;
+}
+
 const nullPixel = (imageData, pixel) => {
   const { data } = imageData;
   for (let i = 0; i < data.length; i += 4) {
@@ -180,4 +193,36 @@ const addup = (imageData, matrix) => {
     newData.data[i + 3] = 255;
   }
   return newData;
+};
+
+
+const signWithWatermark = (imageData, watermarkImageData, plane = 8) => {
+
+  const watermarkHeight = watermarkImageData.height;
+  const watermarkWidth = watermarkImageData.width;
+  const pixelsProcessed = createImageData(imageData.width, imageData.height);
+
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    const x_watermark = Math.floor(i / 4) % watermarkWidth;
+    const y_watermark =  Math.floor(Math.floor(i / 4) / watermarkWidth) % watermarkHeight;
+
+    const currentR = imageData.data[i];
+    const currentG = imageData.data[i + 1];
+    const currentB = imageData.data[i + 2];
+    let imagePixelBlue = currentB;
+    const i_watermark = (y_watermark * watermarkWidth + x_watermark) * 4;
+    const R = watermarkImageData.data[i_watermark];
+    const G = watermarkImageData.data[i_watermark + 1];
+    const B = watermarkImageData.data[i_watermark + 2];
+    const watermarkPixelBlue = B;
+    const mask = 1 << (plane - 1);
+    if (watermarkPixelBlue === 0) {
+      imagePixelBlue |= mask;
+    }
+    pixelsProcessed.data[i] = currentR;
+    pixelsProcessed.data[i + 1] = currentG;
+    pixelsProcessed.data[i + 2] = imagePixelBlue;
+    pixelsProcessed.data[i + 3] = 255; 
+  }
+  return pixelsProcessed;
 };

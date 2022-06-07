@@ -1,14 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href=' http://fonts.googleapis.com/css?family=Comfortaa' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
 </head>
 <body>
 
-  <img src="https://placedog.net/500/500" class="dog-img"/>
+  <h1>Who let the dogs out? 🐶</h1>
+  <div class="row" id="loader">Fetching dogs...</div>
+  <section>
+    <div class="row hidden">
+      <img src="https://placedog.net/500/500" class="dog-img"/>
+      <img src="./images/watermark.png" class="dog-img"/>
+    </div>
+  </section>
+  <div class="hidden" id="input-container">
+    <span>Plane 🐶</span>
+    <input type="number" id="plane" value="8">
+  </div>
+
+
+
   <script src="rand_normal.js"></script>
   <script src="utils.js"></script>
   <script src="filters.js"></script>

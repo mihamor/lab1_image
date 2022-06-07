@@ -1,16 +1,19 @@
-const img = document.getElementsByTagName("img")[0];
+const [section] = document.getElementsByTagName("section");
+const [planeInput] = document.getElementsByTagName("input");
 
+const [img, watermarkImage ] = document.getElementsByTagName("img");
 img.crossOrigin = "Anonymous";
 const { width, height } = img;
 const img2 = new Image(width, height);
 img2.src = 'https://placedog.net/501/501';
+// watermarkImage.crossOrigin = "";
 
-const createNewCanvasFromImage = () => {
+const createNewCanvasFromImage = (image = img) => {
   const cvs = document.createElement('canvas');
   cvs.width = width;
   cvs.height = height;
   const ctx = cvs.getContext("2d");
-  ctx.drawImage(img, 0, 0, cvs.width,cvs.height);
+  ctx.drawImage(image, 0, 0, cvs.width,cvs.height);
   const imageData = ctx.getImageData(0, 0, cvs.width, cvs.height);
   return { ctx, cvs, imageData }; 
 };
@@ -24,7 +27,7 @@ const task2a = () => {
 
   taskDiv.appendChild(img);
   taskDiv.appendChild(cvs);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 const task2b = () => {
@@ -46,7 +49,7 @@ const task2b = () => {
   taskDiv.appendChild(cvsR);
   taskDiv.appendChild(cvsG);
   taskDiv.appendChild(cvsB);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 const task2c = () => {
@@ -68,7 +71,7 @@ const task2c = () => {
   taskDiv.appendChild(cvsR);
   taskDiv.appendChild(cvsG);
   taskDiv.appendChild(cvsB);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 
@@ -86,7 +89,7 @@ const task2d = () => {
     ctx.drawImage(img2Clone, 0, 0, height, width);
     taskDiv.appendChild(cvs);
   };
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 const task2Median = () => {
@@ -98,7 +101,7 @@ const task2Median = () => {
   const imageDataNew = median(imageData, sizePx);
   ctx.putImageData(imageDataNew, 0, 0);
   taskDiv.appendChild(cvs);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 const task2ErosionAddup = () => {
@@ -121,7 +124,7 @@ const task2ErosionAddup = () => {
   ctx1.putImageData(imageDataAddup, 0, 0); 
   taskDiv.appendChild(cvs);
   taskDiv.appendChild(cvs1);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 
@@ -138,7 +141,7 @@ const task2BlurGaussian = () => {
 
   ctx.putImageData(imageDataNew, 0, 0);
   taskDiv.appendChild(cvs);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 const taskFilterSharp = () => {
@@ -153,7 +156,7 @@ const taskFilterSharp = () => {
 
   ctx.putImageData(imageDataNew, 0, 0);
   taskDiv.appendChild(cvs);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
 };
 
 
@@ -186,10 +189,54 @@ const taskFilterSobel = () => {
 
   ctx.putImageData(final_image, 0, 0);
   taskDiv.appendChild(cvs);
-  document.body.appendChild(taskDiv);
+  section.appendChild(taskDiv);
+};
+
+const taskWatermark = () => {
+  const taskDiv = document.createElement('div');
+  taskDiv.className = 'row';
+
+  const imageClone = img.cloneNode();
+  taskDiv.appendChild(imageClone);
+  taskDiv.appendChild(watermarkImage);
+  section.appendChild(taskDiv);
+
+  const { ctx, cvs, imageData } = createNewCanvasFromImage(img);
+  const {
+    ctx: ctxWaterMark,
+    cvs: cvsWaterMark, 
+    imageData: imageDataWatermark,
+  } = createNewCanvasFromImage(watermarkImage);
+
+  toBW(imageDataWatermark);
+
+  grayscaleFilter(imageData);
+
+  const newData = signWithWatermark(imageData, imageDataWatermark);
+
+
+  ctxWaterMark.putImageData(imageDataWatermark, 0, 0);
+  ctx.putImageData(newData, 0, 0);
+  taskDiv.appendChild(cvs);
+
+
+  planeInput.addEventListener('input', function (evt) {
+    const plane = Number(this.value);
+    console.log(plane);
+    if (!isNaN(plane) && plane > 0 && plane < 9) {
+      const signedWithPlane = signWithWatermark(imageData, imageDataWatermark, plane);
+      ctx.putImageData(signedWithPlane, 0, 0);
+      
+    }
+});
 };
 
 img.onload = () => {
+  const loader = document.getElementById("loader");
+  loader.classList.add('hidden');
+  const inputContainer = document.getElementById("input-container");
+  inputContainer.classList.add('row');
+  inputContainer.classList.remove('hidden')
   task2a();
   task2b();
   task2c();
@@ -199,4 +246,6 @@ img.onload = () => {
   task2Median();
   task2ErosionAddup();
   taskFilterSobel();
+  taskWatermark();
+
 };
