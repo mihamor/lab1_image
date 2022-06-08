@@ -5,7 +5,7 @@ const [img, watermarkImage ] = document.getElementsByTagName("img");
 img.crossOrigin = "Anonymous";
 const { width, height } = img;
 const img2 = new Image(width, height);
-img2.src = 'https://placedog.net/501/501';
+img2.src = 'https://placedog.net/501/501?r';
 // watermarkImage.crossOrigin = "";
 
 const createNewCanvasFromImage = (image = img) => {
